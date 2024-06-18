@@ -31,10 +31,7 @@ public class ChatClient {
                 line = inputConsole.readLine();
                 out.println(line);
                 String inputString = in.readLine();
-                while (!inputString.equals("")) {
-                    inputString = in.readLine();
-                    System.out.println(inputString);
-                }
+                System.out.println(inputString);
             }
 
             socket.close();
