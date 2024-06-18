@@ -6,48 +6,35 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.function.Consumer;
 
 public class ChatClient {
-    
-    private static final String HOSTNAME = "localhost";
-    private static final int PORT = 2000;
-
     private Socket socket = null;
-    private BufferedReader inputConsole = null;
     private PrintWriter out = null;
     private BufferedReader in = null;
+    private Consumer<String> onMessageReceived;
 
-    public ChatClient(String hostname, int port) {
-        try {
-            socket = new Socket(hostname, port);
-            System.out.println("Connected to server: " + hostname);
-
-            inputConsole = new BufferedReader(new InputStreamReader(System.in));
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            String line = "";
-            while (!line.equals("exit")) {
-                line = inputConsole.readLine();
-                out.println(line);
-                String inputString = in.readLine();
-                System.out.println(inputString);
-            }
-
-            socket.close();
-            inputConsole.close();
-            out.close();
-        } catch (UnknownHostException unknownHostException) {
-            System.out.println("Host unknown: " + unknownHostException.getMessage());
-        } catch (IOException exception) {
-            System.out.println("Unknown exception: " + exception.getMessage());
-        }
-
+    public ChatClient(String serverAddress, int serverPort, Consumer<String> onMessageReceived) throws IOException {
+        this.socket = new Socket(serverAddress, serverPort);
+        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.out = new PrintWriter(socket.getOutputStream(), true);
+        this.onMessageReceived = onMessageReceived;
     }
-    
 
+    public void sendMessage(String msg) {
+        out.println(msg);
+    }
 
-    public static void main(String[] args) throws IOException {
-        ChatClient client = new ChatClient("127.0.0.1", 5000);
+    public void startClient() {
+        new Thread(() -> {
+            try {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    onMessageReceived.accept(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }

@@ -15,7 +15,7 @@ public class ChatServer {
     private static List<ClientHandler> clients = new ArrayList<>();
     
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(2000);
+        ServerSocket serverSocket = new ServerSocket(5000);
         System.out.println("Server started. Waiting for clients...");
         
         while (true) {
@@ -42,7 +42,7 @@ class ClientHandler implements Runnable {
     public ClientHandler(Socket socket, List<ClientHandler> clients) throws IOException {
         this.clientSocket = socket;
         this.clients = clients;
-        this.out = new PrintWriter(this.clientSocket.getOutputStream());
+        this.out = new PrintWriter(this.clientSocket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
     }
 
