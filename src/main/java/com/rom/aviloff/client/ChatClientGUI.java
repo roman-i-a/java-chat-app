@@ -64,6 +64,7 @@ public class ChatClientGUI extends JFrame {
         try {
             this.client = new ChatClient("127.0.0.1", 5000, this::onMessageReceived);
             client.startClient();
+            client.sendMessage(name + " join the chat.");
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error connecting to server", "Communication error", JOptionPane.ERROR_MESSAGE);
