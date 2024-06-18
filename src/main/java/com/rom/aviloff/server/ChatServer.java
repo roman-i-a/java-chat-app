@@ -15,18 +15,29 @@ public class ChatServer {
     private static List<ClientHandler> clients = new ArrayList<>();
     
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(5000);
-        System.out.println("Server started. Waiting for clients...");
-        
-        while (true) {
-            Socket clienSocket = serverSocket.accept();
-            System.out.println("Client connected: " + clienSocket);
-            
-            ClientHandler clientThread = new ClientHandler(clienSocket, clients);
-            clients.add(clientThread);
-            new Thread(clientThread).start();
+        int port = 5000;
+        if (args.length != 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.out.println("Illegal port. Try valid port.");
+                System.exit(-1);
+            }
         }
-
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.printf("Server started on port [%d]. Waiting for clients...\n", port);
+            
+            while (true) {
+                Socket clienSocket = serverSocket.accept();
+                System.out.println("Client connected: " + clienSocket);
+                
+                ClientHandler clientThread = new ClientHandler(clienSocket, clients);
+                clients.add(clientThread);
+                new Thread(clientThread).start();
+            }            
+        } catch (IOException e) {
+            e.printStackTrace();
+        };
     }
 }
 
